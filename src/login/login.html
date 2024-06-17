@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="Login.css">
+    <script src="main.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="screenDiv">
+            <div class="screen">
+                <div class="screen__content">
+                    <img src="./logo.jpg" alt="logo" class="logo">
+                    <button type="button" class="btnSalir">X</button>
+                    <form class="login">
+                        <div class="login__field">
+                            <i class="login__icon fas fa-user"></i>
+                            <input type="text" id="user" class="login__input"
+                                onkeyup="javascript:this.value=this.value.toUpperCase();" placeholder="Username">
+                        </div>
+                        <div class="login__field">
+                            <i class="login__icon fas fa-lock"></i>
+                            <input type="password" id="password" class="login__input" placeholder="Password">
+
+                            <br>
+                            <span class="text" id="invalidUser"> </span>
+                            <span class="text"> </span>
+                            <br>
+                            <span class="text" id="errorLogin"></span>
+                            <br>
+                            <span class="text" id="errorLogin2"></span>
+                            <br>
+
+                        </div>
+                        <button id="btnLogin" type='button' class="button login__submit"></button>
+                        <span class="button__text">Login Now</span>
+
+                        <img src="./diseños/patito.gif" alt="patito" class="patito">
+
+                        <i class="button__icon fas fa-chevron-right"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="screen__background">
+                    <span class="screen__background__shape screen__background__shape4"></span>
+                    <span class="screen__background__shape screen__background__shape3"></span>
+                    <span class="screen__background__shape screen__background__shape2"></span>
+                    <span class="screen__background__shape screen__background__shape1"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const login = document.getElementById('btnLogin');
+        const user = document.getElementById('user');
+        const password = document.getElementById('password');
+        const show = document.getElementById('show-password');
+
+
+        show.addEventListener('click', function () {
+            if (show.checked) {
+                password.setAttribute('type', 'text');
+            } else {
+                password.setAttribute('type', 'password');
+            }
+        });
+
+
+    </script>
+
+
+    <script>
+        let intentos = 0;
+        const { mainPrincipal } = window.myAPI2;
+        const { ipcRenderer, fss } = window.myAPI;
+        const spanErrores2 = document.getElementById('errorLogin2');
+        const spanErrores = document.getElementById('errorLogin');
+        const verificar = document.getElementsByClassName('patito');
+        const textError = document.getElementsByClassName('text');
+        function reset() {
+            verificar[0].style.display = "none";
+            for (var i = 0; i < textError.length; i++) {
+                textError[i].innerHTML = "";
+            };
+        }
+        login.addEventListener('click', handleLogin);
+        password.addEventListener('keydown', handleLogin);
+        user.addEventListener('input', reset);
+        password.addEventListener('input', reset);
+        async function handleLogin(event) {
+
+            // Check if the event was triggered by clicking the login button or pressing Enter on the username/password fields
+            if (event.type === 'click' || event.key === 'Enter') {
+
+                event.preventDefault();
+                intentos++;
+                if (intentos < 4) {
+                    if (user.value != "") {
+                        const soundBtn = document.getElementById('soundbtnLogin');
+                        soundBtn.play();
+                        soundBtn.volume = 0.3;
+                        for (var i = 0; i < textError.length; i++) {
+                            textError[i].innerHTML = "";
+                        };
+                        verificar[0].style.display = "block";
+                        verificar[0].src = "./diseños/patito.gif?" + new Date().getTime();
+                        verificar[0].style.display = "block";
+                        await myAPI2.mainPrincipal(user.value, password.value);
+                    } else { intentos--; }
+                }
+                if (intentos == 4) {
+                    spanErrores2.innerHTML = `Haz alcanzado el número de intentos`;
+                }
+                user.value = "";
+                password.value = "";
+            }
+        }
+
+        const btnSalir = document.querySelector('.btnSalir');
+        btnSalir.addEventListener("click", () => {
+            ipcRenderer.send('SalirApp');
+        })
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'hidden') {
+                intentos = 0;
+            }
+        });
+    </script>
+</body>
+
+</html>
