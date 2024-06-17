@@ -17,5 +17,8 @@
   },
   "eslintConfig": {
     "extends": "standard"
+  },
+  "dependencies": {
+    "custom-electron-titlebar": "^4.2.8"
   }
 }
